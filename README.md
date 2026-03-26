@@ -22,6 +22,8 @@ Sila pastikan **Node.js** telah di-install di komputer anda.
 2. Install semua pakej (dependencies) dengan arahan:
    ```bash
    npm install# TVETMARA-Besut-Skills-Talent-Development-Dashboard
+
+   
 # Deployment Guide (MERN Stack on Ubuntu)
 
 This guide provides step-by-step instructions to deploy the TVETMARA Besut Dashboard (MERN Stack) on an Ubuntu server.
@@ -36,16 +38,21 @@ sudo apt install curl git build-essential nginx -y
 ## 2. Install Node.js & npm (via NodeSource)
 Install Node.js (Version 20.x is recommended for modern Vite/React apps).
 ```bash
-# Fetch and install Node.js setup script
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+# Download and install nvm:
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
 
-# Install Node.js
-sudo apt install -y nodejs
+# in lieu of restarting the shell
+\. "$HOME/.nvm/nvm.sh"
 
-# Verify installation
-node -v
-npm -v
-```
+# Download and install Node.js:
+nvm install 24
+
+# Verify the Node.js version:
+node -v # Should print "v24.14.1".
+
+# Verify npm version:
+npm -v # Should print "11.11.0".
+
 
 ## 3. Install MongoDB
 If your application uses a local MongoDB database, install it using the official repository.
@@ -60,7 +67,6 @@ curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
 echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
 
 # Reload local package database and install MongoDB
-sudo apt update
 sudo apt install -y mongodb-org
 
 # Start and enable MongoDB service
@@ -81,7 +87,12 @@ sudo chown -R $USER:$USER /var/www/ikmb-dashboard
 cd /var/www/ikmb-dashboard
 
 # (Optional) Clone from Git如果 applicable
-# git clone <your-repo-url> .
+sudo apt install git -y
+git clone https://github.com/Hannz76/TVETMARA-Besut-Skills-Talent-Development-Dashboard.git
+
+# move all file in folder
+mv /var/www/ikmb-dashboard/TVETMARA-Besut-Skills-Talent-Development-Dashboard/* /var/www/ikmb-dashboard/
+
 ```
 
 ## 5. Install Dependencies & Build Frontend
@@ -104,7 +115,7 @@ nano .env
 *Example `.env`:*
 ```env
 PORT=5000
-MONGODB_URI=mongodb://127.0.0.1:27017/ikmb_db
+MONGODB_URI=mongodb://127.0.0.1:27017/db
 ```
 
 ## 7. Start the Server with PM2
@@ -120,6 +131,10 @@ pm2 start server.js --name "ikmb-api"
 # Save PM2 process list to restart automatically on server boot
 pm2 save
 pm2 startup
+
+# Start frontend
+npm run build
+pm2 start npm --name ikmb-frontend -- run preview -- --host 0.0.0.0 --port 4173
 ```
 
 ## 8. Configure Nginx (Reverse Proxy)
