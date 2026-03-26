@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <!-- PENTING: Viewport ini wajib ada untuk paparan mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Pelajar - IKMB Talent Hub</title>
+    
+    <!-- FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        .nav-item.active { background-color: #EFF6FF; color: #2563EB; border-right: 3px solid #2563EB; }
+        
+        /* Animasi Sidebar Mobile */
+        .sidebar-transition { transition: transform 0.3s ease-in-out; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800 relative">
+
+    <!-- 1. MOBILE OVERLAY (Latar Gelap bila menu buka di phone) -->
+    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden transition-opacity"></div>
+
+    <!-- 2. SIDEBAR (RESPONSIF) -->
+    <!-- Logik: Di mobile dia 'fixed' & sorok kiri (-translate-x-full). Di laptop dia 'relative' & tunjuk (translate-x-0) -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 shadow-2xl md:shadow-none">
+        
+        <!-- Header Sidebar (Logo & Butang Tutup X) -->
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+             <img src="logo tvetmara besut.jpg" alt="TVETMARA" class="w-48 h-auto object-contain">
+             <!-- Butang Tutup (Hanya nampak di Phone) -->
+             <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-red-500">
+                <i class="ph-bold ph-x text-xl"></i>
+             </button>
+        </div>
+        
+        <!-- Menu Navigasi -->
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <p class="px-4 text-xs font-bold text-slate-400 uppercase mb-2">Menu Pelajar</p>
+            
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
+                <i class="ph-fill ph-user-circle text-lg"></i> Profil & Prestasi
+            </button>
+            
+            <button onclick="switchTab('career')" id="nav-career" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
+                <i class="ph ph-briefcase text-lg"></i> Padanan Kerjaya (AI)
+            </button>
+            
+            <button onclick="switchTab('courses')" id="nav-courses" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
+                <i class="ph ph-certificate text-lg"></i> Kursus Cadangan
+            </button>
+        </nav>
+
+        <!-- Profil User (Bawah) -->
+        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200 shadow-sm">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm shrink-0">IS</div>
+                    <div class="flex flex-col">
+                        <p id="sidebar-student-name" class="text-sm font-bold text-slate-800 truncate w-24">Isma Heart</p>
+                        <p id="sidebar-student-course" class="text-xs text-slate-500">Sem 4: Cloud Computing</p>
+                    </div>
+                </div>
+                <button onclick="if(confirm('Log keluar?')) location.href='index.html'" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                    <i class="ph-bold ph-sign-out text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 3. MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative w-full">
+        
+        <!-- Mobile Header (Hanya nampak di Phone) -->
+        <header class="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center z-10">
+            <img src="logo tvetmara besut.jpg" class="h-8 object-contain">
+            <!-- Butang Hamburger -->
+            <button onclick="toggleSidebar()" class="text-slate-600 p-2 hover:bg-slate-100 rounded-lg transition">
+                <i class="ph-bold ph-list text-2xl"></i>
+            </button>
+        </header>
+
+        <!-- Scrollable Content Area -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-20">
+            
+            <!-- TAB 1: DASHBOARD -->
+            <div id="dashboard" class="tab-content active">
+                <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900">Selamat Datang, <span id="welcome-name">Isma</span>! 👋</h1>
+                        <p class="text-slate-500 text-sm md:text-base">Analisis prestasi dan potensi kerjaya anda.</p>
+                    </div>
+                    <span class="bg-green-100 text-green-700 px-4 py-2 rounded-full text-xs font-bold border border-green-200">Status: Good Standing</span>
+                </header>
+
+                <!-- Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute right-0 top-0 p-4 opacity-10"><i class="ph-fill ph-chart-line-up text-6xl text-blue-600"></i></div>
+                        <p class="text-sm text-slate-500 font-medium mb-1">Ramalan Kebolehpasaran</p>
+                        <h2 id="stat-employability" class="text-3xl font-bold text-slate-900">88%</h2>
+                        <p class="text-xs text-green-600 mt-2 font-bold">↑ Tinggi</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-sm text-slate-500 font-medium mb-1">Purata Kehadiran</p>
+                        <h2 id="stat-attendance" class="text-3xl font-bold text-slate-900">95%</h2>
+                        <div class="w-full bg-slate-100 h-2 rounded-full mt-3"><div class="bg-green-500 h-full rounded-full" style="width: 95%"></div></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-sm text-slate-500 font-medium mb-1">CGPA Terkini</p>
+                        <h2 id="stat-cgpa" class="text-3xl font-bold text-slate-900">3.75</h2>
+                        <p class="text-xs text-blue-600 mt-2 font-bold">Anugerah Dekan</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                    <div class="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="ph-fill ph-radar text-blue-600"></i> Analisis Jurang Skill</h3>
+                        <div class="h-64 flex justify-center"><canvas id="studentRadar"></canvas></div>
+                        <div class="mt-4 bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                            <p class="text-xs font-bold text-yellow-700 mb-1">CADANGAN AI:</p>
+                            <p class="text-sm text-slate-700">Tingkatkan skill <strong>"Communication"</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl text-white shadow-lg flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-4"><i class="ph-fill ph-briefcase text-2xl"></i></div>
+                            <h3 class="text-xl font-bold">Peluang Kerjaya!</h3>
+                            <p class="text-slate-300 text-sm mt-2">AI menemui 5 syarikat sesuai untuk anda.</p>
+                        </div>
+                        <button onclick="switchTab('career')" class="mt-6 w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition">Lihat Padanan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CAREER -->
+<!-- ================= TAB 2: PADANAN KERJAYA (IKUT GAMBAR) ================= -->
+            <div id="career" class="tab-content">
+                <header class="mb-8">
+                    <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="ph-fill ph-briefcase text-blue-600"></i> Padanan Kerjaya Pintar
+                    </h1>
+                    <p class="text-slate-500">Sistem AI memadankan profil anda dengan kekosongan jawatan semasa.</p>
+                </header>
+
+                <!-- JOB LIST CONTAINER -->
+                <div class="space-y-6">
+                    
+                    <!-- JOB CARD 1: Junior Cloud Engineer (High Match) -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                        <!-- Bahagian Atas -->
+                        <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+                            
+                            <!-- Kiri: Ikon & Info -->
+                            <div class="flex gap-4 w-full">
+                                <!-- Ikon -->
+                                <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 text-2xl shrink-0">
+                                    <i class="ph-fill ph-cloud"></i>
+                                </div>
+                                <!-- Info -->
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">Junior Cloud Engineer</h3>
+                                    <p class="text-slate-500 text-sm mb-2">TechData Solutions Sdn Bhd • Kuala Lumpur</p>
+                                    <!-- Tags -->
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-medium border border-slate-200">RM 2,800 - RM 3,500</span>
+                                        <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-medium border border-slate-200">Full Time</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Kanan: Match Score -->
+                            <div class="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto mt-2 md:mt-0">
+                                <span class="bg-green-50 text-green-600 px-4 py-1.5 rounded-full text-sm font-bold border border-green-200 flex items-center gap-1">
+                                    <i class="ph-fill ph-sparkle"></i> 94% Match
+                                </span>
+                                <p class="text-xs text-slate-400 mt-1 hidden md:block">Skill anda sangat sesuai!</p>
+                            </div>
+                        </div>
+
+                        <!-- Garisan Pemisah -->
+                        <div class="border-t border-slate-100 mt-5 pt-5 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <!-- Skill List -->
+                            <div class="text-sm text-slate-500 w-full md:w-auto">
+                                <span class="font-bold text-slate-700">Top Skills:</span> Python, AWS, Linux
+                            </div>
+                            <!-- Butang -->
+                            <button class="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-lg text-sm font-bold transition shadow-lg shadow-slate-200">
+                                Mohon Sekarang
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- JOB CARD 2: IT Support (Medium Match) -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                        <!-- Bahagian Atas -->
+                        <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+                            
+                            <!-- Kiri: Ikon & Info -->
+                            <div class="flex gap-4 w-full">
+                                <!-- Ikon -->
+                                <div class="w-14 h-14 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 text-2xl shrink-0">
+                                    <i class="ph-fill ph-desktop"></i>
+                                </div>
+                                <!-- Info -->
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">IT Support Executive</h3>
+                                    <p class="text-slate-500 text-sm mb-2">Berjaya Corporation • Selangor</p>
+                                    <!-- Tags -->
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-medium border border-slate-200">RM 2,300 - RM 2,800</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Kanan: Match Score -->
+                            <div class="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto mt-2 md:mt-0">
+                                <span class="bg-yellow-50 text-yellow-700 px-4 py-1.5 rounded-full text-sm font-bold border border-yellow-200 flex items-center gap-1">
+                                    <i class="ph-fill ph-warning-circle"></i> 78% Match
+                                </span>
+                                <p class="text-xs text-slate-400 mt-1 hidden md:block">Kurang skill: Networking</p>
+                            </div>
+                        </div>
+
+                        <!-- Garisan Pemisah -->
+                        <div class="border-t border-slate-100 mt-5 pt-5 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <!-- Skill List -->
+                            <div class="text-sm text-slate-500 w-full md:w-auto">
+                                <span class="font-bold text-slate-700">Top Skills:</span> Troubleshooting, Windows Server
+                            </div>
+                            <!-- Butang -->
+                            <button class="w-full md:w-auto bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-6 py-2.5 rounded-lg text-sm font-bold transition">
+                                Lihat Detail
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- TAB 3: COURSES -->
+            <!-- ================= TAB 3: KURSUS CADANGAN (IKUT GAMBAR) ================= -->
+            <div id="courses" class="tab-content">
+                <header class="mb-8">
+                    <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="ph-fill ph-certificate text-purple-600"></i> Kursus Cadangan (Personalized)
+                    </h1>
+                    <p class="text-slate-500">Senarai kursus untuk menutup jurang kemahiran (Skill Gap) anda.</p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <!-- KAD 1: BIRU (Disyorkan AI) -->
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col h-full">
+                        <!-- Header Biru -->
+                        <div class="bg-blue-600 p-6 h-40 relative flex flex-col justify-end">
+                            <span class="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-lg">
+                                Disyorkan AI
+                            </span>
+                            <h3 class="text-white font-bold text-xl leading-tight">Professional Soft Skills: Communication</h3>
+                        </div>
+                        <!-- Body -->
+                        <div class="p-6 flex-1 flex flex-col justify-between">
+                            <div>
+                                <p class="text-xs text-slate-500 font-semibold mb-3 flex items-center gap-2">
+                                    <i class="ph-fill ph-clock text-lg"></i> 4 Jam • Online
+                                </p>
+                                <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                                    Kursus ini dicadangkan kerana skor komunikasi anda (60%) di bawah par industri.
+                                </p>
+                            </div>
+                            <!-- Butang Biru Lembut -->
+                            <button class="w-full py-3 bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold rounded-xl text-sm transition-colors">
+                                Mula Belajar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KAD 2: HITAM (Advanced) -->
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col h-full">
+                        <!-- Header Gelap -->
+                        <div class="bg-slate-900 p-6 h-40 relative flex flex-col justify-end">
+                            <span class="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-lg">
+                                Advanced
+                            </span>
+                            <h3 class="text-white font-bold text-xl leading-tight">AWS Cloud Practitioner Essentials</h3>
+                        </div>
+                        <!-- Body -->
+                        <div class="p-6 flex-1 flex flex-col justify-between">
+                            <div>
+                                <p class="text-xs text-slate-500 font-semibold mb-3 flex items-center gap-2">
+                                    <i class="ph-fill ph-chalkboard-teacher text-lg"></i> 6 Jam • Bengkel IKMB
+                                </p>
+                                <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                                    Untuk meningkatkan peluang anda mendapat kerja "Cloud Engineer".
+                                </p>
+                            </div>
+                            <!-- Butang Kelabu Lembut -->
+                            <button class="w-full py-3 bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold rounded-xl text-sm transition-colors">
+                                Daftar Sesi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KAD 3: UNGU (Trending) -->
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col h-full">
+                        <!-- Header Ungu -->
+                        <div class="bg-purple-600 p-6 h-40 relative flex flex-col justify-end">
+                            <span class="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-lg">
+                                Trending
+                            </span>
+                            <h3 class="text-white font-bold text-xl leading-tight">Introduction to AI Tools</h3>
+                        </div>
+                        <!-- Body -->
+                        <div class="p-6 flex-1 flex flex-col justify-between">
+                            <div>
+                                <p class="text-xs text-slate-500 font-semibold mb-3 flex items-center gap-2">
+                                    <i class="ph-fill ph-video text-lg"></i> 2 Jam • Video
+                                </p>
+                                <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                                    Persediaan menghadapi Revolusi Industri 4.0 dan ekonomi digital.
+                                </p>
+                            </div>
+                            <!-- Butang Ungu Lembut -->
+                            <button class="w-full py-3 bg-purple-50 text-purple-600 hover:bg-purple-100 font-bold rounded-xl text-sm transition-colors">
+                                Tonton Video
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+    </main>
+
+    <!-- 4. LOGIC JAVASCRIPT (RESPONSIVE) -->
+    <script>
+        // FUNGSI BUKA/TUTUP SIDEBAR (MOBILE)
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                // BUKA
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                // TUTUP
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // FUNGSI TUKAR TAB (+ AUTO TUTUP SIDEBAR DI MOBILE)
+        function switchTab(tabId) {
+            // Sembunyikan semua tab
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Reset butang menu
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active', 'bg-[#EFF6FF]', 'text-[#2563EB]', 'border-r-4', 'border-[#2563EB]');
+                el.classList.add('text-slate-600');
+            });
+
+            // Aktifkan tab baru
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = document.getElementById('nav-' + tabId);
+            activeBtn.classList.add('active');
+            activeBtn.classList.remove('text-slate-600');
+
+            // JIKA DI PHONE: Tutup sidebar lepas tekan menu
+            if (window.innerWidth < 768) {
+                toggleSidebar();
+            }
+        }
+
+        // CHART CONFIG
+        const ctx = document.getElementById('studentRadar');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Technical', 'Communication', 'Teamwork', 'Problem Solving', 'English'],
+                datasets: [{
+                    label: 'Skill Saya', data: [85, 60, 75, 80, 55], fill: true, backgroundColor: 'rgba(37, 99, 235, 0.2)', borderColor: '#2563EB', pointBackgroundColor: '#2563EB',
+                }, {
+                    label: 'Target', data: [80, 85, 80, 85, 80], fill: true, backgroundColor: 'rgba(16, 185, 129, 0.1)', borderColor: '#10B981', pointBackgroundColor: '#10B981', borderDash: [5, 5]
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, elements: { line: { borderWidth: 3 } }, scales: { r: { suggestedMin: 0, suggestedMax: 100, pointLabels: { font: { size: 10 } } } }, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } } }
+        });
+    </script>
+</body>
+</html>

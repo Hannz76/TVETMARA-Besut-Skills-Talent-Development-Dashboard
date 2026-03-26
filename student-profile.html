@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Pelajar - TVETMARA Besut AI Dashboard</title>
+    
+    <!-- FONT & CSS & ICONS & CHARTS -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; }
+    </style>
+</head>
+<body class="text-slate-800 pb-20">
+
+    <!-- TOP NAV (Back Button) -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <button onclick="window.location.href='staff-dashboard.html'" class="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-medium transition-colors">
+                <i class="ph-bold ph-arrow-left text-xl"></i> Kembali ke Dashboard
+            </button>
+            <div class="font-bold text-blue-700 flex items-center gap-2">
+                <i class="ph-fill ph-brain"></i> IKMB AI-Hub
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 mt-8 space-y-6">
+
+        <!-- HEADER: PROFIL & AI STATUS -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Info Pelajar -->
+            <div class="lg:col-span-2 bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-6 items-start md:items-center">
+                <img id="student-photo" src="https://ui-avatars.com/api/?name=Siti+Zainab&background=F87171&color=fff&size=120" class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-slate-50 shadow-md">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-1">
+                        <h1 id="student-name" class="text-2xl md:text-3xl font-bold text-slate-900">Siti Zainab binti Mahmood</h1>
+                        <span class="bg-red-100 text-red-700 border border-red-200 px-3 py-1 rounded-full text-xs font-bold">Berisiko Tinggi</span>
+                    </div>
+                    <p id="student-id" class="text-slate-500 font-mono text-sm mb-3">No. Matrik: TMB2401055</p>
+                    
+                    <div class="grid grid-cols-2 gap-y-2 gap-x-6 text-sm">
+                        <p class="text-slate-600"><span class="font-semibold">Kursus:</span> <span id="student-course">Diploma Data Analytics</span></p>
+                        <p class="text-slate-600"><span class="font-semibold">Semester:</span> <span id="student-sem">Semester 2</span></p>
+                        <p class="text-slate-600"><span class="font-semibold">Email:</span> <span id="student-email">szainab@student.ikmb.edu.my</span></p>
+                        <p class="text-slate-600"><span class="font-semibold">Status:</span> <span id="student-status" class="text-green-600 font-bold">Aktif</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insight (Skor Kebolehpasaran) -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700 text-white flex flex-col justify-center relative overflow-hidden">
+                <i class="ph-fill ph-magic-wand absolute -right-4 -bottom-4 text-7xl text-white/5"></i>
+                <h3 class="text-slate-300 font-medium text-sm mb-2 flex items-center gap-2">
+                    <i class="ph-fill ph-robot"></i> Ramalan Kebolehpasaran (AI)
+                </h3>
+                <div class="flex items-end gap-2 mb-4">
+                    <span id="ai-score" class="text-5xl font-bold text-red-400">57%</span>
+                    <span class="text-slate-400 text-sm mb-1">/ 100%</span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden mb-4">
+                    <div class="bg-red-500 h-full rounded-full" style="width: 57%"></div>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Sistem mengesan trend penurunan akademik dan kehadiran. Risiko keciciran dijangka <span class="text-red-400 font-bold">Tinggi</span> dalam 3 bulan akan datang.
+                </p>
+            </div>
+        </div>
+
+        <!-- GRAF PRESTASI & KEHADIRAN -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Chart: Akademik vs Kehadiran -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-800">Sejarah Akademik & Kehadiran</h3>
+                    <button class="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100">Muat Turun Transkrip</button>
+                </div>
+                <div class="h-64 w-full">
+                    <canvas id="studentTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart: Radar Kemahiran Individu -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="font-bold text-slate-800 mb-4">Radar Kemahiran Individu</h3>
+                <div class="h-64 w-full flex justify-center">
+                    <canvas id="studentSkillRadar"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- INTERVENSI & CADANGAN AI (PRESCRIPTIVE ANALYTICS) -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2 mb-6">
+                <i class="ph-fill ph-stethoscope text-blue-600"></i> Cadangan Intervensi (Prescriptive Analytics)
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Action 1 -->
+                <div class="border border-red-100 bg-red-50/50 p-4 rounded-xl">
+                    <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mb-3">1</div>
+                    <h4 class="font-bold text-slate-800 text-sm mb-1">Kaunseling Kehadiran</h4>
+                    <p class="text-xs text-slate-500 mb-3">Kehadiran jatuh bawah 80% pada bulan lepas. Jadualkan sesi perjumpaan segera.</p>
+                    <button class="w-full text-xs font-bold text-red-600 border border-red-200 bg-white py-2 rounded-lg hover:bg-red-50">Set Temujanji</button>
+                </div>
+
+                <!-- Action 2 -->
+                <div class="border border-orange-100 bg-orange-50/50 p-4 rounded-xl">
+                    <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold mb-3">2</div>
+                    <h4 class="font-bold text-slate-800 text-sm mb-1">Klinik Akademik (Python)</h4>
+                    <p class="text-xs text-slate-500 mb-3">Markah subjek Programming merosot. Masukkan pelajar dalam kelas bimbingan tambahan.</p>
+                    <button class="w-full text-xs font-bold text-orange-600 border border-orange-200 bg-white py-2 rounded-lg hover:bg-orange-50">Daftar Klinik</button>
+                </div>
+
+                <!-- Action 3 -->
+                <div class="border border-blue-100 bg-blue-50/50 p-4 rounded-xl">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold mb-3">3</div>
+                    <h4 class="font-bold text-slate-800 text-sm mb-1">Pembangunan Soft Skills</h4>
+                    <p class="text-xs text-slate-500 mb-3">Kemahiran komunikasi berada di tahap memuaskan. Sertai kem kepimpinan.</p>
+                    <button class="w-full text-xs font-bold text-blue-600 border border-blue-200 bg-white py-2 rounded-lg hover:bg-blue-50">Lihat Program</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- SCRIPT GRAF -->
+    <script>
+        // Graf Trend Akademik vs Kehadiran (Bar + Line combo)
+        const ctxTrend = document.getElementById('studentTrendChart').getContext('2d');
+        new Chart(ctxTrend, {
+            type: 'bar',
+            data: {
+                labels: ['Bulan 1', 'Bulan 2', 'Bulan 3', 'Bulan 4', 'Bulan 5'],
+                datasets: [
+                    {
+                        type: 'line',
+                        label: 'Skor Penilaian (%)',
+                        data: [75, 70, 65, 58, 55],
+                        borderColor: '#EF4444', // Red
+                        backgroundColor: '#EF4444',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'bar',
+                        label: 'Kehadiran (%)',
+                        data: [95, 90, 85, 75, 70],
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)', // Blue light
+                        borderColor: '#3B82F6',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        yAxisID: 'y'
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, max: 100 } },
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
+            }
+        });
+
+        // Graf Radar Kemahiran Individu
+        const ctxSkill = document.getElementById('studentSkillRadar').getContext('2d');
+        new Chart(ctxSkill, {
+            type: 'radar',
+            data: {
+                labels: ['Programming', 'Database', 'Communication', 'Teamwork', 'Problem Solving'],
+                datasets: [{
+                    label: 'Siti Zainab',
+                    data: [50, 60, 80, 75, 55],
+                    fill: true,
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)', // Red
+                    borderColor: '#EF4444',
+                    pointBackgroundColor: '#EF4444'
+                }, {
+                    label: 'Target Kursus',
+                    data: [80, 80, 75, 80, 85],
+                    fill: true,
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)', // Blue
+                    borderColor: '#3B82F6',
+                    borderDash: [5, 5],
+                    pointBackgroundColor: '#3B82F6'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { r: { suggestedMin: 0, suggestedMax: 100 } },
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
+            }
+        });
+    </script>
+</body>
+</html>
